@@ -2,7 +2,7 @@ package com.example.tetris.model
 
 import android.util.Log
 import androidx.compose.ui.graphics.Color
-import com.example.tetris.BOARD_WIDTH
+import com.example.tetris.ui.BOARD_WIDTH
 
 typealias Matrix = Array<IntArray>
 data class Tetromino(

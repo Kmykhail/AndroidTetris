@@ -1,4 +1,4 @@
-package com.example.tetris
+package com.example.tetris.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -128,6 +128,7 @@ class TetrisViewModel: ViewModel() {
 data class TetrisUiState(
     val gameBoard: GameBoard = GameBoard(BOARD_WIDTH, BOARD_HEIGHT),
     val currentTetromino: Tetromino = tetrominoShapes.random(),
+    val shadowTetromino: Tetromino = currentTetromino,
     val nextTetromino: Tetromino = tetrominoShapes.random(),
     val score: Int = 0
 )
