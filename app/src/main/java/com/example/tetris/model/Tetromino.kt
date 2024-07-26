@@ -1,5 +1,6 @@
 package com.example.tetris.model
 
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import com.example.tetris.BOARD_WIDTH
 
@@ -8,7 +9,7 @@ data class Tetromino(
     val shape: Matrix,
     val color: Color,
     var xPos: Int = (BOARD_WIDTH - shape[0].size) / 2,
-    var yPos: Int = 0
+    var yPos: Int = -1
 )
 
 fun Tetromino.tryMove(gameBoard: GameBoard): Boolean {
@@ -26,57 +27,188 @@ fun Tetromino.tryMove(gameBoard: GameBoard): Boolean {
             }
         }
     }
-
     return true
 }
 
+fun Tetromino.printTetromino(){
+    Log.d("GameTetris" ,"printTetromino:\n${shape.joinToString(separator = "\n"){row ->
+        row.joinToString(separator = ""){ cell -> cell.toString() }
+    }}")
+}
+
+private val matrixShapes = mapOf(
+    'I' to listOf( // I-shape
+        arrayOf(
+            intArrayOf(0, 0, 0, 0),
+            intArrayOf(1, 1, 1, 1),
+            intArrayOf(0, 0, 0, 0),
+            intArrayOf(0, 0, 0, 0)
+          ),
+        arrayOf(
+            intArrayOf(0, 0, 1, 0),
+            intArrayOf(0, 0, 1, 0),
+            intArrayOf(0, 0, 1, 0),
+            intArrayOf(0, 0, 1, 0)
+          ),
+        arrayOf(
+            intArrayOf(0, 0, 0, 0),
+            intArrayOf(0, 0, 0, 0),
+            intArrayOf(1, 1, 1, 1),
+            intArrayOf(0, 0, 0, 0)
+          ),
+        arrayOf(
+            intArrayOf(0, 1, 0, 0),
+            intArrayOf(0, 1, 0, 0),
+            intArrayOf(0, 1, 0, 0),
+            intArrayOf(0, 1, 0, 0)
+        ),
+    ),
+    'J' to listOf( // J-shape
+        arrayOf(
+            intArrayOf(1, 0, 0),
+            intArrayOf(1, 1, 1),
+            intArrayOf(0, 0, 0)
+        ),
+        arrayOf(
+            intArrayOf(0, 1, 1),
+            intArrayOf(0, 1, 0),
+            intArrayOf(0, 1, 0)
+        ),
+        arrayOf(
+            intArrayOf(0, 0, 0),
+            intArrayOf(1, 1, 1),
+            intArrayOf(0, 0, 1)
+        ),
+        arrayOf(
+            intArrayOf(0, 1, 0),
+            intArrayOf(0, 1, 0),
+            intArrayOf(1, 1, 0)
+        ),
+    ),
+    'L' to listOf( // L-shape
+        arrayOf(
+            intArrayOf(0, 0, 1),
+            intArrayOf(1, 1, 1),
+            intArrayOf(0, 0, 0),
+        ),
+        arrayOf(
+            intArrayOf(0, 1, 0),
+            intArrayOf(0, 1, 0),
+            intArrayOf(0, 1, 1),
+        ),
+        arrayOf(
+            intArrayOf(0, 0, 0),
+            intArrayOf(1, 1, 1),
+            intArrayOf(1, 0, 0),
+        ),
+        arrayOf(
+            intArrayOf(1, 1, 0),
+            intArrayOf(0, 1, 0),
+            intArrayOf(0, 1, 0),
+        ),
+    ),
+    'T' to listOf( // T-shape
+        arrayOf(
+            intArrayOf(0, 1, 0),
+            intArrayOf(1, 1, 1),
+            intArrayOf(0, 0, 0)
+        ),
+        arrayOf(
+            intArrayOf(0, 1, 0),
+            intArrayOf(0, 1, 1),
+            intArrayOf(0, 1, 0)
+        ),
+        arrayOf(
+            intArrayOf(0, 0, 0),
+            intArrayOf(1, 1, 1),
+            intArrayOf(0, 1, 0)
+        ),
+        arrayOf(
+            intArrayOf(0, 1, 0),
+            intArrayOf(1, 1, 0),
+            intArrayOf(0, 1, 0)
+        )
+    ),
+    'O' to listOf( // O-shape
+        arrayOf(
+            intArrayOf(1, 1),
+            intArrayOf(1, 1)
+        )
+    ),
+    'S' to listOf( // S-shape
+        arrayOf(
+            intArrayOf(0, 1, 1),
+            intArrayOf(1, 1, 0),
+            intArrayOf(0, 0, 0),
+        ),
+        arrayOf(
+            intArrayOf(0, 1, 0),
+            intArrayOf(0, 1, 1),
+            intArrayOf(0, 0, 1),
+        ),
+        arrayOf(
+            intArrayOf(0, 0, 0),
+            intArrayOf(0, 1, 1),
+            intArrayOf(1, 1, 0),
+        ),
+        arrayOf(
+            intArrayOf(1, 0, 0),
+            intArrayOf(1, 1, 0),
+            intArrayOf(0, 1, 0),
+        ),
+    ),
+    'Z' to listOf( // Z-shape
+        arrayOf(
+            intArrayOf(1, 1, 0),
+            intArrayOf(0, 1, 1),
+            intArrayOf(0, 0, 0),
+        ),
+        arrayOf(
+            intArrayOf(0, 0, 1),
+            intArrayOf(0, 1, 1),
+            intArrayOf(0, 1, 0),
+        ),
+        arrayOf(
+            intArrayOf(0, 0, 0),
+            intArrayOf(1, 1, 0),
+            intArrayOf(0, 1, 1),
+        ),
+        arrayOf(
+            intArrayOf(0, 1, 0),
+            intArrayOf(1, 1, 0),
+            intArrayOf(1, 0, 0),
+        ),
+    )
+)
+
 val tetrominoShapes = listOf(
     Tetromino(
-        shape = arrayOf(
-            intArrayOf(1, 1, 1, 1)  // I-shape
-        ),
+        shape = matrixShapes['I']!!.random(),
         color = Color.Cyan
     ),
     Tetromino(
-        shape = arrayOf(
-            intArrayOf(1, 1),
-            intArrayOf(1, 1)       // O-shape
-        ),
+        shape = matrixShapes['O']!!.random(),
         color = Color.Yellow
     ),
     Tetromino(
-        shape = arrayOf(
-            intArrayOf(0, 1, 0),
-            intArrayOf(1, 1, 1)    // T-shape
-        ),
+        shape = matrixShapes['T']!!.random(),
         color = Color.Magenta
     ),
     Tetromino(
-        shape = arrayOf(
-            intArrayOf(1, 0, 0),
-            intArrayOf(1, 1, 1)    // L-shape
-        ),
-        color = Color(0XFFA500)
-    ),
-    Tetromino(
-        shape = arrayOf(
-            intArrayOf(0, 0, 1),
-            intArrayOf(1, 1, 1)    // J-shape
-        ),
+        shape = matrixShapes['L']!!.random(),
         color = Color.Blue
     ),
     Tetromino(
-        shape = arrayOf(
-            intArrayOf(0, 1, 1),
-            intArrayOf(1, 1, 0)    // S-shape
-        ),
+        shape = matrixShapes['J']!!.random(),
+        color = Color.Black
+    ),
+    Tetromino(
+        shape = matrixShapes['S']!!.random(),
         color = Color.Green
     ),
     Tetromino(
-        shape = arrayOf(
-            intArrayOf(1, 1, 0),
-            intArrayOf(0, 1, 1)    // Z-shape
-        ),
+        shape = matrixShapes['Z']!!.random(),
         color = Color.Red
     )
 )
+

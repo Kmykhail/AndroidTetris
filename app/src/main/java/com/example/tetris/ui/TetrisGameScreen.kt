@@ -1,33 +1,45 @@
 package com.example.tetris.ui
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import com.example.tetris.TetrisViewModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -47,49 +59,89 @@ fun TetrisGameScreen(
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxSize()
-
     ) {
-        Card(
-//            elevation = CardDefaults.elevatedCardElevation(20.dp),
-            shape = RoundedCornerShape(4.dp),
-            modifier = Modifier
-                .shadow(elevation = 20.dp, shape = RoundedCornerShape(12.dp))
-
+        Row(
+            horizontalArrangement = Arrangement.Start,
         ) {
-//            TetrominoComposable(tetromino = uiState.currentTetromino)
-            GameBoardComposable(gameBoard = uiState.gameBoard, tetromino = uiState.currentTetromino)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "NEXT")
+                Card(
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .shadow(elevation = 8.dp)
+                ) {
+                    NextTetromino(nextTetromino = uiState.nextTetromino)
+                }
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "SCORE")
+                Card(
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .shadow(elevation = 8.dp)
+                ) {
+                    Text(
+                        text = uiState.score.toString(),
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            IconButton(
+                onClick = {viewModel.toggleGameRunning()},
+                modifier = Modifier.background(MaterialTheme.colorScheme.primary)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
-
+        Spacer(modifier = Modifier.height(16.dp))
+        Card(
+            shape = RoundedCornerShape(2.dp),
+            modifier = Modifier
+                .shadow(elevation = 8.dp)
+        ) {
+            GameBoardComposable(
+                gameBoard = uiState.gameBoard,
+                tetromino = uiState.currentTetromino
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        ControlButtons(
+            viewModel = viewModel,
+        )
     }
-//    Box(
-//        modifier = Modifier
-//        .fillMaxSize()
-////        .size(CELL_SIZE_DP * uiState.gameBoard.width, CELL_SIZE_DP * uiState.gameBoard.height)
-//    ) {
-//        GameBoardComposable(gameBoard = uiState.gameBoard)
-//        TetrominoComposable(tetromino = uiState.currentTetromino)
-//        ControlButtons(viewModel = viewModel)
-//    }
 }
 
 @Composable
-fun GameBoardComposable(gameBoard: GameBoard, tetromino: Tetromino, cellSize: Dp = CELL_SIZE_DP) {
+fun GameBoardComposable(gameBoard: GameBoard, tetromino: Tetromino, cellSize: Dp = CELL_SIZE_DP, padding: Dp = 4.dp) {
     // Draw the game board
     Canvas(modifier = Modifier
         .size(cellSize * gameBoard.width, cellSize * gameBoard.height)
         .background(Color.LightGray)
-        .padding(horizontal = 4.dp, vertical = 4.dp)
+        .padding(4.dp)
     ) {
+        val cornerRadius = cellSize.toPx() / 4
+
         gameBoard.cells.forEachIndexed { rowIndex, rows ->
             rows.forEachIndexed { columnIndex, cell ->
                 if (cell != null) {
-                    drawRect(
+                    drawRoundRect(
                         color = cell,
                         topLeft = Offset(
                             x = columnIndex * cellSize.toPx() ,
                             y = rowIndex * cellSize.toPx()
                         ),
-                        size = Size(cellSize.toPx() , cellSize.toPx() )
+                        size = Size(cellSize.toPx() - padding.toPx(), cellSize.toPx() - padding.toPx()),
+                        cornerRadius = CornerRadius(cornerRadius, cornerRadius)
                     )
                 }
             }
@@ -98,60 +150,118 @@ fun GameBoardComposable(gameBoard: GameBoard, tetromino: Tetromino, cellSize: Dp
         tetromino.shape.forEachIndexed { rowIndex, rows ->
             rows.forEachIndexed { columnIndex, cell ->
                 if (cell == 1) {
-                    drawRect(
+                    drawRoundRect(
                         color = tetromino.color,
                         topLeft = Offset(
                             x = (tetromino.xPos + columnIndex) * cellSize.toPx(),
                             y = (tetromino.yPos + rowIndex) * cellSize.toPx()
                         ),
-                        size = Size(cellSize.toPx(), cellSize.toPx())
+                        size = Size(cellSize.toPx(), cellSize.toPx()),
+                        cornerRadius = CornerRadius(cornerRadius, cornerRadius)
                     )
                 }
             }
         }
     }
-
-//    // Draw current tetromino
-//    Canvas(modifier = Modifier
-//        .size(cellSize * tetromino.shape[0].size, cellSize * tetromino.shape.size)
-//    ) {
-//        tetromino.shape.forEachIndexed { rowIndex, rows ->
-//            rows.forEachIndexed { columnIndex, cell ->
-//                if (cell == 1) {
-//                    drawRect(
-//                        color = tetromino.color,
-//                        topLeft = Offset(
-//                            x = (tetromino.xPos + columnIndex) * cellSize.toPx(),
-//                            y = (tetromino.yPos + rowIndex) * cellSize.toPx()
-//                        ),
-//                        size = Size(cellSize.toPx(), cellSize.toPx())
-//                    )
-//                }
-//            }
-//        }
-//    }
 }
 @Composable
+fun NextTetromino(nextTetromino: Tetromino, cellSize: Dp = 15.dp) {
+    val cellSizePx = with(LocalDensity.current) { cellSize.toPx() }
+    val cornerRadius = cellSizePx / 4
+
+    Canvas(modifier = Modifier
+        .size(cellSize * 6, cellSize * 4)
+        .background(Color.LightGray)
+        .padding(vertical = 2.dp)
+    ) {
+        val canvasPxSize = Pair(size.width, size.height)
+
+        val tetrominoWidth = nextTetromino.shape[0].size
+        val tetrominoHeight = nextTetromino.shape.size
+
+        val startXOffset = (canvasPxSize.first - (tetrominoWidth * cellSizePx)) / 2
+        val startYOffset = (canvasPxSize.second - (tetrominoHeight * cellSizePx)) / 2
+
+        nextTetromino.shape.forEachIndexed { rowIndex, rows ->
+            rows.forEachIndexed { columnIndex, cell ->
+                if (cell == 1) {
+                    drawRoundRect(
+                        color = nextTetromino.color,
+                        topLeft = Offset(
+                            x = startXOffset + columnIndex * cellSizePx,
+                            y = startYOffset + rowIndex * cellSizePx
+                        ),
+                        size = Size(cellSizePx, cellSizePx),
+                        cornerRadius = CornerRadius(cornerRadius, cornerRadius)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun ControlButtons(
-    viewModel: TetrisViewModel
+    viewModel: TetrisViewModel,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
+        horizontalArrangement = Arrangement.SpaceBetween
     ){
-        Button(onClick = {viewModel.moveTetromino(-1, 0)} ) {
-            Text("<")
+        IconButton(
+            onClick = {viewModel.moveTetromino(-1, 0)},
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary)
+                .size(40.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowLeft,
+                contentDescription = "Left Arrow",
+                tint = MaterialTheme.colorScheme.onSurface
+            )
         }
-        Button(onClick = {viewModel.moveTetromino(1, 0)}) {
-            Text(">")
+        Spacer(modifier = Modifier.width(8.dp))
+        IconButton(
+            onClick = {viewModel.moveTetromino(1, 0)},
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary)
+                .size(40.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowRight,
+                contentDescription = "Right arrow",
+                tint = MaterialTheme.colorScheme.onSurface
+            )
         }
-        Button(onClick = {viewModel.moveTetromino(0, 1)}) {
-            Text("D")
+        Spacer(modifier = Modifier.width(8.dp))
+        IconButton(
+            onClick = {viewModel.moveTetromino(0, 1)},
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary)
+                .size(40.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = "Down arrow",
+                tint = MaterialTheme.colorScheme.onSurface
+            )
         }
-        Button(onClick = {viewModel.rotateTetromino()}) {
-            Text("R")
+        Spacer(modifier = Modifier.width(8.dp))
+        IconButton(
+            onClick = {viewModel.rotateTetromino()},
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary)
+                .size(40.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Refresh,
+                contentDescription = "Rotate",
+                tint = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
