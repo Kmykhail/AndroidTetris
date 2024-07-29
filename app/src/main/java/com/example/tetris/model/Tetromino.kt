@@ -30,10 +30,18 @@ fun Tetromino.tryMove(gameBoard: GameBoard): Boolean {
     return true
 }
 
-fun Tetromino.printTetromino(){
-    Log.d("GameTetris" ,"printTetromino:\n${shape.joinToString(separator = "\n"){row ->
+fun Tetromino.deepCopy(): Tetromino {
+    val newShape = shape.map { it.clone() }.toTypedArray()
+    return Tetromino(newShape, color, xPos, yPos)
+}
+
+fun Tetromino.printTetromino(info: String){
+    Log.d("GameTetris" ,"${info} printTetromino:\n${shape.joinToString(separator = "\n"){row ->
         row.joinToString(separator = ""){ cell -> cell.toString() }
     }}")
+}
+fun Tetromino.getWidthHeight() : Pair<Int, Int> {
+    return Pair(shape[0].size, shape.size)
 }
 
 private val matrixShapes = mapOf(

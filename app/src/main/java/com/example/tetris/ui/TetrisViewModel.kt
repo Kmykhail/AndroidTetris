@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import androidx.compose.ui.unit.dp
+import com.example.tetris.model.deepCopy
+import com.example.tetris.model.getWidthHeight
 import com.example.tetris.model.tryMove
 import com.example.tetris.model.printBoard
 import com.example.tetris.model.printTetromino
@@ -21,7 +23,8 @@ const val BOARD_HEIGHT = 20
 val CELL_SIZE_DP = 30.dp
 class TetrisViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(
-        TetrisUiState()
+        TetrisUiState(
+        )
     )
     private val _isGameOver = MutableStateFlow(false)
     val isGameOver: StateFlow<Boolean> = _isGameOver
@@ -112,16 +115,37 @@ class TetrisViewModel: ViewModel() {
 
     private fun updateTetromino(newTetromino: Tetromino) {
         _uiState.update { it.copy(currentTetromino = newTetromino) }
+        updateShadowTetromino()
     }
+    private fun updateShadowTetromino() {
+        _uiState.value.run {
+            val newShadowTetromino = currentTetromino.deepCopy()
+            while (newShadowTetromino.tryMove(gameBoard)) {
+                newShadowTetromino.yPos += 1
+            }
+            newShadowTetromino.yPos -= 1
 
+            var intersectionYPos = currentTetromino.yPos + newShadowTetromino.getWidthHeight().second
+            var cnt = 0
+            while (intersectionYPos > newShadowTetromino.yPos) {
+                newShadowTetromino.shape[cnt++].fill(0)
+                intersectionYPos--
+            }
+
+            newShadowTetromino.printTetromino("newShadowTetromino")
+            _uiState.update { it.copy(shadowTetromino = newShadowTetromino) }
+            currentTetromino.printTetromino("currentTetromino")
+        }
+    }
     private fun initNewTetromino() {
         _uiState.update {
             it.copy(
                 currentTetromino = _uiState.value.nextTetromino,
+                shadowTetromino = _uiState.value.nextTetromino,
                 nextTetromino = tetrominoShapes.random()
             )
         }
-        _uiState.value.nextTetromino.printTetromino()
+//        _uiState.value.nextTetromino.printTetromino()
     }
 }
 

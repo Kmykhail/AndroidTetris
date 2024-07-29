@@ -98,7 +98,8 @@ fun TetrisGameScreen(
         ) {
             GameBoardComposable(
                 gameBoard = uiState.gameBoard,
-                tetromino = uiState.currentTetromino
+                currentTetromino = uiState.currentTetromino,
+                shadowTetromino = uiState.shadowTetromino
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
