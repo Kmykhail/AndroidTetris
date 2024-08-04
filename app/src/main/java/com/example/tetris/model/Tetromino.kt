@@ -9,7 +9,7 @@ data class Tetromino(
     val shape: Matrix,
     val color: Color,
     var xPos: Int = (BOARD_WIDTH - shape[0].size) / 2,
-    var yPos: Int = -1
+    var yPos: Int = 0
 )
 
 fun Tetromino.tryMove(gameBoard: GameBoard): Boolean {
@@ -33,6 +33,36 @@ fun Tetromino.tryMove(gameBoard: GameBoard): Boolean {
 fun Tetromino.deepCopy(): Tetromino {
     val newShape = shape.map { it.clone() }.toTypedArray()
     return Tetromino(newShape, color, xPos, yPos)
+}
+
+
+fun Tetromino.rotate(): Matrix {
+    val n = shape.size
+    val m = shape[0].size
+    val rotatedShape = Array(m) {IntArray(n)}
+
+    for (row in shape.indices) {
+        for (column in shape[row].indices) {
+            rotatedShape[column][n - row - 1] = shape[row][column]
+        }
+    }
+
+    return rotatedShape
+}
+fun Tetromino.getShadowTetromino(gameBoard: GameBoard): Tetromino {
+    val newShadowTetromino = deepCopy()
+    while (newShadowTetromino.tryMove(gameBoard)) {
+        newShadowTetromino.yPos += 1
+    }
+    newShadowTetromino.yPos -= 1
+
+    var intersectionYPos = yPos + newShadowTetromino.getWidthHeight().second
+    var cnt = 0
+    while (intersectionYPos > newShadowTetromino.yPos) {
+        newShadowTetromino.shape[cnt++].fill(0)
+        intersectionYPos--
+    }
+    return newShadowTetromino
 }
 
 fun Tetromino.printTetromino(info: String){

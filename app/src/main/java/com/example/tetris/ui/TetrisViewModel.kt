@@ -12,20 +12,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import androidx.compose.ui.unit.dp
+import com.example.tetris.model.clearRows
 import com.example.tetris.model.deepCopy
+import com.example.tetris.model.getShadowTetromino
 import com.example.tetris.model.getWidthHeight
 import com.example.tetris.model.tryMove
 import com.example.tetris.model.printBoard
 import com.example.tetris.model.printTetromino
+import com.example.tetris.model.rotate
 
 const val BOARD_WIDTH = 10
 const val BOARD_HEIGHT = 20
 val CELL_SIZE_DP = 30.dp
 class TetrisViewModel: ViewModel() {
-    private val _uiState = MutableStateFlow(
-        TetrisUiState(
-        )
-    )
+    private val _uiState = MutableStateFlow(createInitialUiState())
     private val _isGameOver = MutableStateFlow(false)
     val isGameOver: StateFlow<Boolean> = _isGameOver
 
@@ -38,22 +38,29 @@ class TetrisViewModel: ViewModel() {
         startGameLoop()
     }
 
+    private fun createInitialUiState(): TetrisUiState {
+        val randomTetromino = tetrominoShapes.random()
+        return TetrisUiState(
+            currentTetromino = randomTetromino,
+            shadowTetromino = randomTetromino,
+            nextTetromino = tetrominoShapes.random(),
+            gameBoard = GameBoard(BOARD_WIDTH, BOARD_HEIGHT),
+            score = 0
+        )
+    }
+    fun restart() {
+        _isGameRunning.value = true
+        _isGameOver.value = false
+        _uiState.value = createInitialUiState()
+    }
+
     fun toggleGameRunning() {
         _isGameRunning.value = !_isGameRunning.value
     }
 
     fun rotateTetromino() {
         _uiState.value.run {
-            val n = currentTetromino.shape.size
-            val m = currentTetromino.shape[0].size
-            val rotatedShape = Array(m) {IntArray(n)}
-
-            for (row in currentTetromino.shape.indices) {
-                for (column in currentTetromino.shape[row].indices) {
-                    rotatedShape[column][n - row - 1] = currentTetromino.shape[row][column]
-                }
-            }
-
+            val rotatedShape = currentTetromino.rotate()
             val rotatedTetromino = currentTetromino.copy(shape = rotatedShape)
             // is it possible to rotate on the same place
             if (rotatedTetromino.tryMove(gameBoard)) {
@@ -85,6 +92,7 @@ class TetrisViewModel: ViewModel() {
 
                 if (!gameBoard.placeTetromino(currentTetromino)) {
                     _isGameOver.value = true
+                    _uiState.update { it.copy(gameBoard = GameBoard(BOARD_WIDTH, BOARD_HEIGHT)) }
                     return
                 }
 
@@ -97,17 +105,7 @@ class TetrisViewModel: ViewModel() {
     }
 
     private fun updateGameBoard(gameBoard: GameBoard) {
-        var clearedRows: Int = 0
-        for (rRow in gameBoard.cells.indices.reversed()) {
-            if (gameBoard.cells[rRow].all { it != null }) {
-                gameBoard.cells[rRow].fill(null)
-                for (r in rRow downTo 1) {
-                    gameBoard.cells[r] = gameBoard.cells[r - 1]
-                }
-                gameBoard.cells[0] = Array(gameBoard.width) { null }
-                clearedRows++
-            }
-        }
+        var clearedRows = gameBoard.clearRows()
         _uiState.update { it.copy(score = _uiState.value.score + (clearedRows * 100)) }
         _uiState.update { it.copy(gameBoard = gameBoard) }
         gameBoard.printBoard()
@@ -115,26 +113,9 @@ class TetrisViewModel: ViewModel() {
 
     private fun updateTetromino(newTetromino: Tetromino) {
         _uiState.update { it.copy(currentTetromino = newTetromino) }
-        updateShadowTetromino()
-    }
-    private fun updateShadowTetromino() {
         _uiState.value.run {
-            val newShadowTetromino = currentTetromino.deepCopy()
-            while (newShadowTetromino.tryMove(gameBoard)) {
-                newShadowTetromino.yPos += 1
-            }
-            newShadowTetromino.yPos -= 1
-
-            var intersectionYPos = currentTetromino.yPos + newShadowTetromino.getWidthHeight().second
-            var cnt = 0
-            while (intersectionYPos > newShadowTetromino.yPos) {
-                newShadowTetromino.shape[cnt++].fill(0)
-                intersectionYPos--
-            }
-
-            newShadowTetromino.printTetromino("newShadowTetromino")
+            val newShadowTetromino = currentTetromino.getShadowTetromino(gameBoard)
             _uiState.update { it.copy(shadowTetromino = newShadowTetromino) }
-            currentTetromino.printTetromino("currentTetromino")
         }
     }
     private fun initNewTetromino() {
@@ -145,14 +126,13 @@ class TetrisViewModel: ViewModel() {
                 nextTetromino = tetrominoShapes.random()
             )
         }
-//        _uiState.value.nextTetromino.printTetromino()
     }
 }
 
 data class TetrisUiState(
-    val gameBoard: GameBoard = GameBoard(BOARD_WIDTH, BOARD_HEIGHT),
-    val currentTetromino: Tetromino = tetrominoShapes.random(),
-    val shadowTetromino: Tetromino = currentTetromino,
-    val nextTetromino: Tetromino = tetrominoShapes.random(),
+    val gameBoard: GameBoard,
+    val currentTetromino: Tetromino,
+    val nextTetromino: Tetromino,
+    val shadowTetromino: Tetromino,
     val score: Int = 0
 )

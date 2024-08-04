@@ -38,6 +38,21 @@ fun GameBoard.placeTetromino(tetromino: Tetromino): Boolean {
     }
     return true
 }
+
+fun GameBoard.clearRows() : Int {
+    var clearedRows = 0
+    for (rRow in cells.indices.reversed()) {
+        if (cells[rRow].all { it != null }) {
+            cells[rRow].fill(null)
+            for (r in rRow downTo 1) {
+                cells[r] = cells[r - 1]
+            }
+            cells[0] = Array(width) { null }
+            clearedRows++
+        }
+    }
+    return clearedRows
+}
 fun GameBoard.printBoard(): Unit {
     Log.d("GameTetris" ,"printBoard:\n${cells.joinToString(separator = "\n"){row ->
         row.joinToString(separator = ""){ color -> convertColor2Digit(color = color).toString() }

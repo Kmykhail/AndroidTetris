@@ -32,10 +32,8 @@ fun GameBoardComposable(
     // Draw the game board
     Canvas(modifier = Modifier
         .size(cellSize * gameBoard.width, cellSize * gameBoard.height)
-        .background(Color.White)
     ) {
         drawGameBoard(gameBoard, cellSizePx, gridLineColor, cornerRadius)
-
         drawTetromino(currentTetromino, cellSizePx, cornerRadius)
         drawTetromino(shadowTetromino, cellSizePx, cornerRadius, true)
     }
@@ -57,7 +55,7 @@ fun DrawScope.drawGameBoard(
                     y = rowIndex * cellSizePx
                 ),
                 size = Size(cellSizePx, cellSizePx),
-                cornerRadius = if (cell != null) CornerRadius(cornerRadius, cornerRadius) else CornerRadius(cellSizePx / 10, cellSizePx / 10)
+                cornerRadius = CornerRadius(cornerRadius, cornerRadius)
             )
         }
     }
@@ -103,5 +101,4 @@ fun DrawScope.drawTetromino(
             }
         }
     }
-
 }
