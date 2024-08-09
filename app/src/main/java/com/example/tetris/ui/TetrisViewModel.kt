@@ -13,17 +13,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import androidx.compose.ui.unit.dp
 import com.example.tetris.model.clearRows
-import com.example.tetris.model.deepCopy
 import com.example.tetris.model.getShadowTetromino
-import com.example.tetris.model.getWidthHeight
-import com.example.tetris.model.tryMove
 import com.example.tetris.model.printBoard
 import com.example.tetris.model.printTetromino
+import com.example.tetris.model.tryMove
 import com.example.tetris.model.rotate
 
 const val BOARD_WIDTH = 10
 const val BOARD_HEIGHT = 20
-val CELL_SIZE_DP = 30.dp
+val CELL_SIZE_DP = 24.dp
 class TetrisViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(createInitialUiState())
     private val _isGameOver = MutableStateFlow(false)
@@ -63,7 +61,7 @@ class TetrisViewModel: ViewModel() {
             val rotatedShape = currentTetromino.rotate()
             val rotatedTetromino = currentTetromino.copy(shape = rotatedShape)
             // is it possible to rotate on the same place
-            if (rotatedTetromino.tryMove(gameBoard)) {
+            if (rotatedTetromino.tryMove(0, 0 , gameBoard)) {
                 updateTetromino(rotatedTetromino)
             }
         }
@@ -80,17 +78,19 @@ class TetrisViewModel: ViewModel() {
         }
     }
 
-    fun moveTetromino(x: Int, y: Int) {
-        val xPos = _uiState.value.currentTetromino.xPos
-        val yPos = _uiState.value.currentTetromino.yPos
-        val newTetromino = _uiState.value.currentTetromino.copy(xPos = x + xPos, yPos = y + yPos)
+    fun moveTetromino(x: Int, y: Int, isInstantMove: Boolean = false) {
+        val newTetromino = _uiState.value.currentTetromino.copy()
 
         _uiState.value.run {
-            if (!newTetromino.tryMove(gameBoard)) {
+            if (isInstantMove) {
+                while (newTetromino.tryMove(x, y, gameBoard));
+            }
+
+            if (!newTetromino.tryMove(x, y, gameBoard)) {
                 // Tetromino can't move out of game board width
                 if (x != 0) return
 
-                if (!gameBoard.placeTetromino(currentTetromino)) {
+                if (!gameBoard.placeTetromino(newTetromino)) {
                     _isGameOver.value = true
                     _uiState.update { it.copy(gameBoard = GameBoard(BOARD_WIDTH, BOARD_HEIGHT)) }
                     return
@@ -108,15 +108,14 @@ class TetrisViewModel: ViewModel() {
         var clearedRows = gameBoard.clearRows()
         _uiState.update { it.copy(score = _uiState.value.score + (clearedRows * 100)) }
         _uiState.update { it.copy(gameBoard = gameBoard) }
-        gameBoard.printBoard()
     }
 
     private fun updateTetromino(newTetromino: Tetromino) {
         _uiState.update { it.copy(currentTetromino = newTetromino) }
-        _uiState.value.run {
-            val newShadowTetromino = currentTetromino.getShadowTetromino(gameBoard)
-            _uiState.update { it.copy(shadowTetromino = newShadowTetromino) }
-        }
+//        _uiState.value.run {
+//            val newShadowTetromino = currentTetromino.getShadowTetromino(gameBoard)
+//            _uiState.update { it.copy(shadowTetromino = newShadowTetromino) }
+//        }
     }
     private fun initNewTetromino() {
         _uiState.update {

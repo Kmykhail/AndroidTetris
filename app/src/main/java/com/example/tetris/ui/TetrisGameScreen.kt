@@ -58,9 +58,9 @@ fun TetrisGameScreen(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxSize()
+            .padding(vertical = 20.dp)
     ) {
         Row(
             horizontalArrangement = Arrangement.Start,
@@ -74,7 +74,6 @@ fun TetrisGameScreen(
                     modifier = Modifier
                 ) {
                     NextTetromino(
-                        gameBoard = uiState.gameBoard,
                         nextTetromino = uiState.nextTetromino
                     )
                 }
@@ -96,7 +95,8 @@ fun TetrisGameScreen(
                 }
             }
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        // Game board
+        Spacer(modifier = Modifier.height(20.dp))
         Card(
             shape = RoundedCornerShape(2.dp),
             modifier = Modifier
@@ -108,7 +108,8 @@ fun TetrisGameScreen(
                 shadowTetromino = uiState.shadowTetromino
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        // Buttons
+        Spacer(modifier = Modifier.height(20.dp))
         ControlButtons(
             isGameRunning = isGameRunning,
             viewModel = viewModel,

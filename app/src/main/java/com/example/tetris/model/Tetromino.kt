@@ -1,6 +1,9 @@
 package com.example.tetris.model
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.example.tetris.ui.BOARD_WIDTH
 
@@ -12,11 +15,20 @@ data class Tetromino(
     var yPos: Int = 0
 )
 
-fun Tetromino.tryMove(gameBoard: GameBoard): Boolean {
+fun Tetromino.tryMove(x: Int, y: Int, gameBoard: GameBoard): Boolean {
+    val isValid = collisionCheck(xPos + x, yPos + y, gameBoard)
+    if (isValid) {
+        xPos += x
+        yPos += y
+    }
+    return isValid
+}
+
+private fun Tetromino.collisionCheck(x: Int, y: Int, gameBoard: GameBoard): Boolean {
     for (row in shape.indices) {
         for (column in shape[row].indices) {
-            val boardCellX = xPos + column
-            val boardCellY = yPos + row
+            val boardCellX = x + column
+            val boardCellY = y + row
 
             if (shape[row][column] > 0) {
                 if (boardCellX !in 0 until gameBoard.width ||
@@ -51,22 +63,22 @@ fun Tetromino.rotate(): Matrix {
 }
 fun Tetromino.getShadowTetromino(gameBoard: GameBoard): Tetromino {
     val newShadowTetromino = deepCopy()
-    while (newShadowTetromino.tryMove(gameBoard)) {
+    while (newShadowTetromino.tryMove(0, 0, gameBoard)) {
         newShadowTetromino.yPos += 1
     }
     newShadowTetromino.yPos -= 1
 
-    var intersectionYPos = yPos + newShadowTetromino.getWidthHeight().second
-    var cnt = 0
-    while (intersectionYPos > newShadowTetromino.yPos) {
-        newShadowTetromino.shape[cnt++].fill(0)
-        intersectionYPos--
-    }
+//    var intersectionYPos = yPos + newShadowTetromino.getWidthHeight().second
+//    var cnt = 0
+//    while (intersectionYPos > newShadowTetromino.yPos) {
+//        newShadowTetromino.shape[cnt++].fill(0)
+//        intersectionYPos--
+//    }
     return newShadowTetromino
 }
 
 fun Tetromino.printTetromino(info: String){
-    Log.d("GameTetris" ,"${info} printTetromino:\n${shape.joinToString(separator = "\n"){row ->
+    Log.d("GameTetris" ,"${info} xPos: ${xPos}, yPos: ${yPos}\nprintTetromino:\n${shape.joinToString(separator = "\n"){row ->
         row.joinToString(separator = ""){ cell -> cell.toString() }
     }}")
 }

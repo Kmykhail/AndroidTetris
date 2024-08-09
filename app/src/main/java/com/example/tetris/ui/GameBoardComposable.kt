@@ -1,8 +1,8 @@
 package com.example.tetris.ui
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -20,22 +20,24 @@ import com.example.tetris.model.Tetromino
 fun GameBoardComposable(
     gameBoard: GameBoard,
     currentTetromino: Tetromino,
-    shadowTetromino: Tetromino,
-    cellSize: Dp = CELL_SIZE_DP,
-    padding: Dp = 4.dp
+    shadowTetromino: Tetromino?,
+    cellSize: Dp = CELL_SIZE_DP
 ) {
 
     val cellSizePx = with(LocalDensity.current) { cellSize.toPx() }
-    val gridLineColor = Color.Gray.copy(alpha = 0.3f)
-    val cornerRadius = cellSizePx / 4
+    val defaultColor = MaterialTheme.colorScheme.secondary
+    val gridLineColor = MaterialTheme.colorScheme.onSecondary
+    val cornerRadius = cellSizePx / 8
 
     // Draw the game board
     Canvas(modifier = Modifier
         .size(cellSize * gameBoard.width, cellSize * gameBoard.height)
     ) {
-        drawGameBoard(gameBoard, cellSizePx, gridLineColor, cornerRadius)
+        drawGameBoard(gameBoard, cellSizePx, gridLineColor, cornerRadius, defaultColor)
         drawTetromino(currentTetromino, cellSizePx, cornerRadius)
-        drawTetromino(shadowTetromino, cellSizePx, cornerRadius, true)
+        if (shadowTetromino != null) {
+            drawTetromino(shadowTetromino, cellSizePx, cornerRadius, true)
+        }
     }
 }
 
@@ -43,13 +45,14 @@ fun DrawScope.drawGameBoard(
     gameBoard: GameBoard,
     cellSizePx: Float,
     gridLineColor: Color,
-    cornerRadius: Float
+    cornerRadius: Float,
+    defaultColor: Color
 ) {
     // Draw board
     gameBoard.cells.forEachIndexed { rowIndex, rows ->
         rows.forEachIndexed { columnIndex, cell ->
             drawRoundRect(
-                color = cell ?: Color.LightGray,
+                color = cell ?: defaultColor,
                 topLeft = Offset(
                     x = columnIndex * cellSizePx ,
                     y = rowIndex * cellSizePx
@@ -85,7 +88,7 @@ fun DrawScope.drawTetromino(
     cornerRadius: Float,
     isShadow: Boolean = false
 ) {
-    val color = if (isShadow) Color.Black.copy(alpha = 0.1f) else tetromino.color
+    val color = if (isShadow) Color.Black.copy(alpha = 0.3f) else tetromino.color
     tetromino.shape.forEachIndexed { rowIndex, rows ->
         rows.forEachIndexed { columnIndex, cell ->
             if (cell == 1) {

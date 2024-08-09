@@ -1,10 +1,13 @@
 package com.example.tetris.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -13,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowDown
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,12 +36,11 @@ fun ControlButtons(
     viewModel: TetrisViewModel,
 ) {
     Row(
-
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             Row {
                 IconHandler(
@@ -45,32 +48,41 @@ fun ControlButtons(
                     descriptor = "Left arrow",
                     onButtonClick = { viewModel.moveTetromino(-1, 0) }
                 )
-                Spacer(modifier = Modifier.width(2.dp))
+                Spacer(modifier = Modifier.width(10.dp))
                 IconHandler(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     descriptor = "Down arrow",
-                    onButtonClick = { viewModel.moveTetromino(0, 1) }
+                    onButtonClick = { viewModel.moveTetromino(0, 1)}
                 )
-                Spacer(modifier = Modifier.width(2.dp))
+                Spacer(modifier = Modifier.width(10.dp))
                 IconHandler(
                     imageVector = Icons.Default.KeyboardArrowRight,
                     descriptor = "Right arrow",
                     onButtonClick = { viewModel.moveTetromino(1, 0) }
                 )
-                Spacer(modifier = Modifier.width(2.dp))
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Row {
                 IconHandler(
                     imageVector = Icons.Default.Refresh,
                     descriptor = "Rotate",
                     onButtonClick = { viewModel.rotateTetromino() },
                 )
+                Spacer(modifier = Modifier.width(10.dp))
+                IconHandler(
+                    imageVector = Icons.Default.KeyboardDoubleArrowDown,
+                    descriptor = "Down arrow",
+                    onButtonClick = { viewModel.moveTetromino(0, 1, true)}
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                IconHandler(
+                    imageVector = if (isGameRunning) Icons.Filled.PlayArrow else Icons.Filled.Pause,
+                    descriptor = "Rotate",
+                    onButtonClick = { viewModel.toggleGameRunning() },
+                    isSystemButton = true
+                )
             }
         }
-        Spacer(modifier = Modifier.width(20.dp))
-        IconHandler(
-            imageVector = if (isGameRunning) Icons.Filled.PlayArrow else Icons.Filled.Pause,
-            descriptor = "Rotate",
-            onButtonClick = { viewModel.toggleGameRunning() },
-        )
     }
 }
 
@@ -79,10 +91,11 @@ fun IconHandler(
     imageVector: ImageVector,
     descriptor: String,
     onButtonClick: () -> Unit,
+    isSystemButton: Boolean = false,
     modifier: Modifier = Modifier
         .clip(CircleShape)
         .background(MaterialTheme.colorScheme.secondaryContainer)
-        .size(40.dp)
+        .size(62.dp)
 ) {
     IconButton(
         onClick = onButtonClick,
