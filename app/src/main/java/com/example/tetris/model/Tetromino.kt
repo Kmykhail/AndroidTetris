@@ -5,85 +5,100 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import com.example.tetris.ui.BOARD_HEIGHT
 import com.example.tetris.ui.BOARD_WIDTH
 
 typealias Matrix = Array<IntArray>
-data class Tetromino(
-    val shape: Matrix,
-    val color: Color,
-    var xPos: Int = (BOARD_WIDTH - shape[0].size) / 2,
-    var yPos: Int = 0
-)
+class Tetromino(initialX: Int, initialY: Int, initialMatrix: Matrix, initialColor: Color) {
+    var x by mutableStateOf(initialX)
+        private set
 
-fun Tetromino.tryMove(x: Int, y: Int, gameBoard: GameBoard): Boolean {
-    val isValid = collisionCheck(xPos + x, yPos + y, gameBoard)
-    if (isValid) {
-        xPos += x
-        yPos += y
+    var y by mutableStateOf(initialY)
+        private set
+
+    var matrix by mutableStateOf(initialMatrix)
+        private set
+
+    var color by mutableStateOf(initialColor)
+        private set
+
+    var shadowX by mutableStateOf(x)
+        private set
+    var shadowY by mutableStateOf(BOARD_HEIGHT - matrix.size)
+        private set
+
+    fun tryMove(xPos: Int, yPos: Int, gameBoard: GameBoard, matrix: Matrix = this.matrix): Boolean {
+        val isValid = collisionCheck(x + xPos, y + yPos, gameBoard, matrix)
+        if (isValid) {
+            x += xPos
+            y += yPos
+            shadowCollision(gameBoard, matrix)
+        }
+        return isValid
     }
-    return isValid
-}
 
-private fun Tetromino.collisionCheck(x: Int, y: Int, gameBoard: GameBoard): Boolean {
-    for (row in shape.indices) {
-        for (column in shape[row].indices) {
-            val boardCellX = x + column
-            val boardCellY = y + row
+    private fun shadowCollision(gameBoard: GameBoard, matrix: Matrix) {
+        var tmp = shadowY
+        while (collisionCheck(x, tmp, gameBoard, matrix)) {
+            tmp += 1
+        }
+        if (tmp != shadowY) {
+            shadowY = tmp - 1
+        }  else {
+            while (!collisionCheck(x, --tmp, gameBoard, matrix));
+            shadowY = tmp
+        }
+        shadowX = x
+    }
+    private fun collisionCheck(x: Int, y: Int, gameBoard: GameBoard, matrix: Matrix): Boolean {
+        for (row in matrix.indices) {
+            for (column in matrix[row].indices) {
+                val boardCellX = x + column
+                val boardCellY = y + row
 
-            if (shape[row][column] > 0) {
-                if (boardCellX !in 0 until gameBoard.width ||
-                    boardCellY !in 0 until gameBoard.height ||
-                    gameBoard.cells[boardCellY][boardCellX] != null) {
-                    return false
+                if (matrix[row][column] > 0) {
+                    if (boardCellX !in 0 until gameBoard.width ||
+                        boardCellY !in 0 until gameBoard.height ||
+                        gameBoard.cells[boardCellY][boardCellX] != null) {
+                        return false
+                    }
                 }
             }
         }
+        return true
     }
-    return true
-}
+    fun rotate(gameBoard: GameBoard) {
+        if (color == Color.Yellow) { // skip for square
+            return
+        }
 
-fun Tetromino.deepCopy(): Tetromino {
-    val newShape = shape.map { it.clone() }.toTypedArray()
-    return Tetromino(newShape, color, xPos, yPos)
-}
+        val n = matrix.size
+        val m = matrix[0].size
+        val rotatedMatrix = Array(m) {IntArray(n)}
 
+        matrix.forEachIndexed { rowIndex, rows ->
+            rows.forEachIndexed { columnIndex, value ->
+                rotatedMatrix[columnIndex][n - rowIndex - 1] = value
+            }
+        }
 
-fun Tetromino.rotate(): Matrix {
-    val n = shape.size
-    val m = shape[0].size
-    val rotatedShape = Array(m) {IntArray(n)}
-
-    for (row in shape.indices) {
-        for (column in shape[row].indices) {
-            rotatedShape[column][n - row - 1] = shape[row][column]
+        if (tryMove(0,0, gameBoard, rotatedMatrix)) {
+            matrix = rotatedMatrix
         }
     }
 
-    return rotatedShape
-}
-fun Tetromino.getShadowTetromino(gameBoard: GameBoard): Tetromino {
-    val newShadowTetromino = deepCopy()
-    while (newShadowTetromino.tryMove(0, 0, gameBoard)) {
-        newShadowTetromino.yPos += 1
+    fun printTetromino(info: String, matrix: Matrix = this.matrix){
+        Log.d("GameTetris" ,"${info} x: ${x}, y: ${y}\nprintTetromino:\n${matrix.joinToString(separator = "\n"){row ->
+            row.joinToString(separator = ""){ cell -> cell.toString() }
+        }}")
     }
-    newShadowTetromino.yPos -= 1
 
-//    var intersectionYPos = yPos + newShadowTetromino.getWidthHeight().second
-//    var cnt = 0
-//    while (intersectionYPos > newShadowTetromino.yPos) {
-//        newShadowTetromino.shape[cnt++].fill(0)
-//        intersectionYPos--
-//    }
-    return newShadowTetromino
-}
-
-fun Tetromino.printTetromino(info: String){
-    Log.d("GameTetris" ,"${info} xPos: ${xPos}, yPos: ${yPos}\nprintTetromino:\n${shape.joinToString(separator = "\n"){row ->
-        row.joinToString(separator = ""){ cell -> cell.toString() }
-    }}")
-}
-fun Tetromino.getWidthHeight() : Pair<Int, Int> {
-    return Pair(shape[0].size, shape.size)
+    fun updateShadow(gameBoard: GameBoard) {
+        shadowY = y
+        while (collisionCheck(x, shadowY + 1, gameBoard, matrix)) {
+            shadowY++
+        }
+    }
 }
 
 private val matrixShapes = mapOf(
@@ -231,34 +246,23 @@ private val matrixShapes = mapOf(
     )
 )
 
-val tetrominoShapes = listOf(
-    Tetromino(
-        shape = matrixShapes['I']!!.random(),
-        color = Color.Cyan
-    ),
-    Tetromino(
-        shape = matrixShapes['O']!!.random(),
-        color = Color.Yellow
-    ),
-    Tetromino(
-        shape = matrixShapes['T']!!.random(),
-        color = Color.Magenta
-    ),
-    Tetromino(
-        shape = matrixShapes['L']!!.random(),
-        color = Color.Blue
-    ),
-    Tetromino(
-        shape = matrixShapes['J']!!.random(),
-        color = Color.Black
-    ),
-    Tetromino(
-        shape = matrixShapes['S']!!.random(),
-        color = Color.Green
-    ),
-    Tetromino(
-        shape = matrixShapes['Z']!!.random(),
-        color = Color.Red
+fun getRandomTetromino(): Tetromino  {
+    val (shape, matrixList) = matrixShapes.entries.random()
+    val matrix = matrixList.random()
+    val tetromino = Tetromino(
+        initialX = (BOARD_WIDTH - matrix[0].size) / 2,
+        initialY = 0,
+        initialMatrix = matrix,
+        initialColor = when(shape) {
+            'I' -> Color.Cyan
+            'O' -> Color.Yellow
+            'T' -> Color.Magenta
+            'L' -> Color.Blue
+            'J' -> Color(0xFFFFA500) // orange
+            'S' -> Color.Green
+            'Z' -> Color.Red
+            else -> Color.Black
+        }
     )
-)
-
+    return tetromino
+}

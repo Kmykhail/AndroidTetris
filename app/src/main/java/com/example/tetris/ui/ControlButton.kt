@@ -1,14 +1,11 @@
 package com.example.tetris.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -46,19 +43,19 @@ fun ControlButtons(
                 IconHandler(
                     imageVector = Icons.Default.KeyboardArrowLeft,
                     descriptor = "Left arrow",
-                    onButtonClick = { viewModel.moveTetromino(-1, 0) }
+                    onButtonClick = { viewModel.moveLeft() }
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 IconHandler(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     descriptor = "Down arrow",
-                    onButtonClick = { viewModel.moveTetromino(0, 1)}
+                    onButtonClick = { viewModel.moveDown()}
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 IconHandler(
                     imageVector = Icons.Default.KeyboardArrowRight,
                     descriptor = "Right arrow",
-                    onButtonClick = { viewModel.moveTetromino(1, 0) }
+                    onButtonClick = { viewModel.moveRight() }
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
@@ -72,7 +69,7 @@ fun ControlButtons(
                 IconHandler(
                     imageVector = Icons.Default.KeyboardDoubleArrowDown,
                     descriptor = "Down arrow",
-                    onButtonClick = { viewModel.moveTetromino(0, 1, true)}
+                    onButtonClick = { viewModel.moveDownInstantly()}
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 IconHandler(

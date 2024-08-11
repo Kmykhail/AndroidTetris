@@ -20,7 +20,6 @@ import com.example.tetris.model.Tetromino
 fun GameBoardComposable(
     gameBoard: GameBoard,
     currentTetromino: Tetromino,
-    shadowTetromino: Tetromino?,
     cellSize: Dp = CELL_SIZE_DP
 ) {
 
@@ -35,9 +34,31 @@ fun GameBoardComposable(
     ) {
         drawGameBoard(gameBoard, cellSizePx, gridLineColor, cornerRadius, defaultColor)
         drawTetromino(currentTetromino, cellSizePx, cornerRadius)
-        if (shadowTetromino != null) {
-            drawTetromino(shadowTetromino, cellSizePx, cornerRadius, true)
-        }
+        drawLines(gameBoard, cellSizePx, gridLineColor)
+    }
+}
+
+fun DrawScope.drawLines(
+    gameBoard: GameBoard,
+    cellSizePx: Float,
+    gridLineColor: Color
+) {
+    // Draw grid lines
+    for (i in 1 until gameBoard.width) {
+        drawLine(
+            color = gridLineColor,
+            start = Offset(x = i * cellSizePx, y = 0f),
+            end = Offset(x = i * cellSizePx, y = size.height),
+            strokeWidth = 1.dp.toPx()
+        )
+    }
+    for (i in 1 until gameBoard.height) {
+        drawLine(
+            color = gridLineColor,
+            start = Offset(x = 0f, y = i * cellSizePx),
+            end = Offset(x = size.width, y = i * cellSizePx),
+            strokeWidth = 1.dp.toPx()
+        )
     }
 }
 
@@ -62,41 +83,47 @@ fun DrawScope.drawGameBoard(
             )
         }
     }
-
-    // Draw grid lines
-    for (i in 1 until gameBoard.width) {
-        drawLine(
-            color = gridLineColor,
-            start = Offset(x = i * cellSizePx, y = 0f),
-            end = Offset(x = i * cellSizePx, y = size.height),
-            strokeWidth = 1.dp.toPx()
-        )
-    }
-    for (i in 1 until gameBoard.height) {
-        drawLine(
-            color = gridLineColor,
-            start = Offset(x = 0f, y = i * cellSizePx),
-            end = Offset(x = size.width, y = i * cellSizePx),
-            strokeWidth = 1.dp.toPx()
-        )
-    }
+//    // Draw grid lines
+//    for (i in 1 until gameBoard.width) {
+//        drawLine(
+//            color = gridLineColor,
+//            start = Offset(x = i * cellSizePx, y = 0f),
+//            end = Offset(x = i * cellSizePx, y = size.height),
+//            strokeWidth = 1.dp.toPx()
+//        )
+//    }
+//    for (i in 1 until gameBoard.height) {
+//        drawLine(
+//            color = gridLineColor,
+//            start = Offset(x = 0f, y = i * cellSizePx),
+//            end = Offset(x = size.width, y = i * cellSizePx),
+//            strokeWidth = 1.dp.toPx()
+//        )
+//    }
 }
 
 fun DrawScope.drawTetromino(
     tetromino: Tetromino,
     cellSizePx: Float,
-    cornerRadius: Float,
-    isShadow: Boolean = false
+    cornerRadius: Float
 ) {
-    val color = if (isShadow) Color.Black.copy(alpha = 0.3f) else tetromino.color
-    tetromino.shape.forEachIndexed { rowIndex, rows ->
+    tetromino.matrix.forEachIndexed { rowIndex, rows ->
         rows.forEachIndexed { columnIndex, cell ->
             if (cell == 1) {
                 drawRoundRect(
-                    color = color,
+                    color = Color.Black.copy(alpha = 0.3f),
                     topLeft = Offset(
-                        x = (tetromino.xPos + columnIndex) * cellSizePx,
-                        y = (tetromino.yPos + rowIndex) * cellSizePx
+                        x = (tetromino.shadowX+ columnIndex) * cellSizePx,
+                        y = (tetromino.shadowY + rowIndex) * cellSizePx
+                    ),
+                    size = Size(cellSizePx, cellSizePx),
+                    cornerRadius = CornerRadius(cornerRadius, cornerRadius)
+                )
+                drawRoundRect(
+                    color = tetromino.color,
+                    topLeft = Offset(
+                        x = (tetromino.x + columnIndex) * cellSizePx,
+                        y = (tetromino.y + rowIndex) * cellSizePx
                     ),
                     size = Size(cellSizePx, cellSizePx),
                     cornerRadius = CornerRadius(cornerRadius, cornerRadius)
