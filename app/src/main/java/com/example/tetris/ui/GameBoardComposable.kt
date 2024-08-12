@@ -24,7 +24,7 @@ fun GameBoardComposable(
 ) {
 
     val cellSizePx = with(LocalDensity.current) { cellSize.toPx() }
-    val defaultColor = MaterialTheme.colorScheme.secondary
+    val defaultColor = MaterialTheme.colorScheme.secondaryContainer
     val gridLineColor = MaterialTheme.colorScheme.onSecondary
     val cornerRadius = cellSizePx / 8
 
@@ -32,7 +32,7 @@ fun GameBoardComposable(
     Canvas(modifier = Modifier
         .size(cellSize * gameBoard.width, cellSize * gameBoard.height)
     ) {
-        drawGameBoard(gameBoard, cellSizePx, gridLineColor, cornerRadius, defaultColor)
+        drawGameBoard(gameBoard, cellSizePx, cornerRadius, defaultColor)
         drawTetromino(currentTetromino, cellSizePx, cornerRadius)
         drawLines(gameBoard, cellSizePx, gridLineColor)
     }
@@ -65,7 +65,6 @@ fun DrawScope.drawLines(
 fun DrawScope.drawGameBoard(
     gameBoard: GameBoard,
     cellSizePx: Float,
-    gridLineColor: Color,
     cornerRadius: Float,
     defaultColor: Color
 ) {
@@ -83,23 +82,6 @@ fun DrawScope.drawGameBoard(
             )
         }
     }
-//    // Draw grid lines
-//    for (i in 1 until gameBoard.width) {
-//        drawLine(
-//            color = gridLineColor,
-//            start = Offset(x = i * cellSizePx, y = 0f),
-//            end = Offset(x = i * cellSizePx, y = size.height),
-//            strokeWidth = 1.dp.toPx()
-//        )
-//    }
-//    for (i in 1 until gameBoard.height) {
-//        drawLine(
-//            color = gridLineColor,
-//            start = Offset(x = 0f, y = i * cellSizePx),
-//            end = Offset(x = size.width, y = i * cellSizePx),
-//            strokeWidth = 1.dp.toPx()
-//        )
-//    }
 }
 
 fun DrawScope.drawTetromino(

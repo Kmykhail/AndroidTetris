@@ -44,7 +44,7 @@ class Tetromino(initialX: Int, initialY: Int, initialMatrix: Matrix, initialColo
         }
         if (tmp != shadowY) {
             shadowY = tmp - 1
-        }  else {
+        } else {
             while (!collisionCheck(x, --tmp, gameBoard, matrix));
             shadowY = tmp
         }
@@ -257,7 +257,7 @@ fun getRandomTetromino(): Tetromino  {
             'I' -> Color.Cyan
             'O' -> Color.Yellow
             'T' -> Color.Magenta
-            'L' -> Color.Blue
+            'L' -> Color(0xFF3E3EC2)
             'J' -> Color(0xFFFFA500) // orange
             'S' -> Color.Green
             'Z' -> Color.Red
