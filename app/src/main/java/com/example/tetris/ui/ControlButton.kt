@@ -75,8 +75,7 @@ fun ControlButtons(
                 IconHandler(
                     imageVector = if (isGameRunning) Icons.Filled.PlayArrow else Icons.Filled.Pause,
                     descriptor = "Rotate",
-                    onButtonClick = { viewModel.toggleGameRunning() },
-                    isSystemButton = true
+                    onButtonClick = { viewModel.toggleGameRunning() }
                 )
             }
         }
@@ -88,7 +87,6 @@ fun IconHandler(
     imageVector: ImageVector,
     descriptor: String,
     onButtonClick: () -> Unit,
-    isSystemButton: Boolean = false,
     modifier: Modifier = Modifier
         .clip(CircleShape)
         .background(MaterialTheme.colorScheme.secondaryContainer)

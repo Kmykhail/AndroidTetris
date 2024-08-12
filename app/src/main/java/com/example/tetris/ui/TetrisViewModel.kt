@@ -42,16 +42,6 @@ class TetrisViewModel: ViewModel() {
         _uiState.value = createInitialUiState()
     }
 
-    fun toggleGameRunning() {
-        _isGameRunning.value = !_isGameRunning.value
-    }
-
-    fun rotateTetromino() {
-        _uiState.value.run {
-            currentTetromino.rotate(gameBoard)
-        }
-    }
-
     private fun startGameLoop() {
         viewModelScope.launch {
             while (!_isGameOver.value) {
@@ -63,25 +53,40 @@ class TetrisViewModel: ViewModel() {
         }
     }
 
+    fun toggleGameRunning() {
+        _isGameRunning.value = !_isGameRunning.value
+    }
+
+    fun rotateTetromino() {
+        if (!_isGameRunning.value) return
+        _uiState.value.run {
+            currentTetromino.rotate(gameBoard)
+        }
+    }
+
     fun moveLeft() {
+        if (!_isGameRunning.value) return
         _uiState.value.run {
             currentTetromino.tryMove(-1, 0, gameBoard)
         }
     }
 
     fun moveRight() {
+        if (!_isGameRunning.value) return
         _uiState.value.run {
             currentTetromino.tryMove(1, 0, gameBoard)
         }
     }
 
     fun moveDownInstantly() {
+        if (!_isGameRunning.value) return
         _uiState.value.run {
             while (currentTetromino.tryMove(0, 1, gameBoard));
             moveDown()
         }
     }
     fun moveDown() {
+        if (!_isGameRunning.value) return
         _uiState.value.run {
             if (!currentTetromino.tryMove(0, 1, gameBoard)) {
                 if (!gameBoard.placeTetromino(currentTetromino)) {
