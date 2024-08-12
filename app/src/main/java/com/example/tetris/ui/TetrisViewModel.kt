@@ -89,7 +89,7 @@ class TetrisViewModel: ViewModel() {
                     _isGameRunning.value = false
                     return
                 }
-                score += gameBoard.clearRows() * 100
+                score += gameBoard.clearCompletedRows() * 100
                 initNewTetromino()
             }
         }
