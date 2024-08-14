@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="padding_small">2dp</dimen>
+    <dimen name="padding_medium">4dp</dimen>
+
+    <dimen name="internal_portrait">24dp</dimen>
+    <dimen name="external_portrait">12dp</dimen>
+</resources>

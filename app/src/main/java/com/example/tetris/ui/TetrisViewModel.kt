@@ -14,7 +14,7 @@ import com.example.tetris.model.getRandomTetromino
 
 const val BOARD_WIDTH = 10
 const val BOARD_HEIGHT = 20
-val CELL_SIZE_DP = 24.dp
+
 class TetrisViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(createInitialUiState())
     private val _isGameOver = MutableStateFlow(false)

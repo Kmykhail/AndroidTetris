@@ -81,14 +81,14 @@ class Tetromino(initialX: Int, initialY: Int, initialMatrix: Matrix, initialColo
         }
     }
 
+    fun updateShadow(gameBoard: GameBoard) {
+        shadowCollision(gameBoard)
+    }
+
     fun printTetromino(info: String, matrix: Matrix = this.matrix){
         Log.d("GameTetris" ,"${info} x: ${x}, y: ${y}\nprintTetromino:\n${matrix.joinToString(separator = "\n"){row ->
             row.joinToString(separator = ""){ cell -> cell.toString() }
         }}")
-    }
-
-    fun updateShadow(gameBoard: GameBoard) {
-        shadowCollision(gameBoard)
     }
 }
 

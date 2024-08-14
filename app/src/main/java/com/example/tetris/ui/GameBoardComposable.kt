@@ -1,6 +1,7 @@
 package com.example.tetris.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -20,7 +21,7 @@ import com.example.tetris.model.Tetromino
 fun GameBoardComposable(
     gameBoard: GameBoard,
     currentTetromino: Tetromino,
-    cellSize: Dp = CELL_SIZE_DP
+    cellSize: Dp
 ) {
 
     val cellSizePx = with(LocalDensity.current) { cellSize.toPx() }
@@ -31,6 +32,7 @@ fun GameBoardComposable(
     // Draw the game board
     Canvas(modifier = Modifier
         .size(cellSize * gameBoard.width, cellSize * gameBoard.height)
+        .fillMaxSize()
     ) {
         drawGameBoard(gameBoard, cellSizePx, cornerRadius, defaultColor)
         drawTetromino(currentTetromino, cellSizePx, cornerRadius)
