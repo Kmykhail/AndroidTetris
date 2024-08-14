@@ -37,16 +37,10 @@ class Tetromino(initialX: Int, initialY: Int, initialMatrix: Matrix, initialColo
         return isValid
     }
 
-    private fun shadowCollision(gameBoard: GameBoard, matrix: Matrix) {
-        var tmp = shadowY
-        while (collisionCheck(x, tmp, gameBoard, matrix)) {
-            tmp += 1
-        }
-        if (tmp != shadowY) {
-            shadowY = tmp - 1
-        } else {
-            while (!collisionCheck(x, --tmp, gameBoard, matrix));
-            shadowY = tmp
+    private fun shadowCollision(gameBoard: GameBoard, matrix: Matrix = this.matrix) {
+        shadowY = y
+        while (collisionCheck(x, shadowY + 1, gameBoard, matrix)) {
+            shadowY++
         }
         shadowX = x
     }
@@ -94,10 +88,7 @@ class Tetromino(initialX: Int, initialY: Int, initialMatrix: Matrix, initialColo
     }
 
     fun updateShadow(gameBoard: GameBoard) {
-        shadowY = y
-        while (collisionCheck(x, shadowY + 1, gameBoard, matrix)) {
-            shadowY++
-        }
+        shadowCollision(gameBoard)
     }
 }
 
