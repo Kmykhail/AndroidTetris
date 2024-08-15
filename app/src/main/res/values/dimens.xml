@@ -3,9 +3,10 @@
     <dimen name="padding_small">2dp</dimen>
     <dimen name="padding_medium">4dp</dimen>
     <dimen name="padding_large">6dp</dimen>
+    <dimen name="padding_ultra_large">10dp</dimen>
 
     <dimen name="internal_portrait">24dp</dimen>
-    <dimen name="external_portrait">12dp</dimen>
+    <dimen name="external_portrait">16dp</dimen>
 
     <dimen name="card_corner_radius_small">4dp</dimen>
     <dimen name="card_corner_radius_large">10dp</dimen>
