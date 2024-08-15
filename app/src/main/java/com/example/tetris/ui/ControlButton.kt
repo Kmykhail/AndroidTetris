@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
@@ -26,11 +26,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.Dp
+import com.example.tetris.R
 
 @Composable
 fun ControlButtons(
     isGameRunning: Boolean,
     viewModel: TetrisViewModel,
+    btSize: Dp
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -43,19 +47,22 @@ fun ControlButtons(
                 IconHandler(
                     imageVector = Icons.Default.KeyboardArrowLeft,
                     descriptor = "Left arrow",
-                    onButtonClick = { viewModel.moveLeft() }
+                    onButtonClick = { viewModel.moveLeft() },
+                    btSize = btSize
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 IconHandler(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     descriptor = "Down arrow",
-                    onButtonClick = { viewModel.moveDown()}
+                    onButtonClick = { viewModel.moveDown()},
+                    btSize = btSize
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 IconHandler(
                     imageVector = Icons.Default.KeyboardArrowRight,
                     descriptor = "Right arrow",
-                    onButtonClick = { viewModel.moveRight() }
+                    onButtonClick = { viewModel.moveRight() },
+                    btSize = btSize
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
@@ -64,18 +71,21 @@ fun ControlButtons(
                     imageVector = Icons.Default.Refresh,
                     descriptor = "Rotate",
                     onButtonClick = { viewModel.rotateTetromino() },
+                    btSize = btSize
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 IconHandler(
                     imageVector = Icons.Default.KeyboardDoubleArrowDown,
                     descriptor = "Down arrow",
-                    onButtonClick = { viewModel.moveDownInstantly()}
+                    onButtonClick = { viewModel.moveDownInstantly()},
+                    btSize = btSize
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 IconHandler(
                     imageVector = if (isGameRunning) Icons.Filled.PlayArrow else Icons.Filled.Pause,
                     descriptor = "Rotate",
-                    onButtonClick = { viewModel.toggleGameRunning() }
+                    onButtonClick = { viewModel.toggleGameRunning() },
+                    btSize = btSize
                 )
             }
         }
@@ -87,10 +97,11 @@ fun IconHandler(
     imageVector: ImageVector,
     descriptor: String,
     onButtonClick: () -> Unit,
+    btSize: Dp,
     modifier: Modifier = Modifier
-        .clip(CircleShape)
+        .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius_large)))
         .background(MaterialTheme.colorScheme.secondaryContainer)
-        .size(62.dp)
+        .size(btSize)
 ) {
     IconButton(
         onClick = onButtonClick,

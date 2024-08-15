@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -22,15 +21,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tetris.R
 import com.example.tetris.utils.ScreenType
@@ -59,12 +55,11 @@ fun TetrisGameScreen(
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 2.dp)
     ) {
         Card(
-            shape = RoundedCornerShape(4.dp),
+            shape = RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius_small)),
             modifier = Modifier
-                .shadow(elevation = 8.dp)
+                .shadow(dimensionResource(R.dimen.shadow_elevation))
         ) {
             Row(
                 modifier = Modifier
@@ -74,17 +69,17 @@ fun TetrisGameScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                StatusSection(label = "Level", value = "1")
+                StatusSection(label = "Level", value = "1", cellSize)
                 NextTetromino(nextTetromino = uiState.nextTetromino, cellSize = cellSize / 2)
-                StatusSection(label = "Score", value = uiState.score.toString())
+                StatusSection(label = "Score", value = uiState.score.toString(), cellSize)
             }
         }
         // Game board
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
         Card(
-            shape = RoundedCornerShape(4.dp),
+            shape = RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius_small)),
             modifier = Modifier
-                .shadow(elevation = 8.dp)
+                .shadow(dimensionResource(R.dimen.shadow_elevation))
         ) {
             GameBoardComposable(
                 gameBoard = uiState.gameBoard,
@@ -93,20 +88,25 @@ fun TetrisGameScreen(
             )
         }
         // Buttons
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_large)))
         ControlButtons(
             isGameRunning = isGameRunning,
             viewModel = viewModel,
+            btSize = cellSize * 3
         )
     }
 }
 
 @Composable
-fun StatusSection(label: String, value: String) {
+fun StatusSection(
+    label: String,
+    value: String,
+    cellSize: Dp
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .padding(horizontal = 4.dp)
+            .padding(horizontal = dimensionResource(R.dimen.padding_small))
     ) {
         Text(
             text = label,
@@ -114,16 +114,12 @@ fun StatusSection(label: String, value: String) {
         )
         Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color.LightGray)
-                .width(70.dp)
-                .height(40.dp)
-            ,
+                .height(40.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = value,
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center
             )
         }
