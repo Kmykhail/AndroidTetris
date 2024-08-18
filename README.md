@@ -3,8 +3,7 @@
 ## Features:
 - Classic Tetris gameplay with falling Tetriminos (shapes)
 - Clear lines to score points
-- Levels with increasing difficulty
-- Game Over screen
+- ~~Levels with increasing difficulty~~
 
 ## Designed for Galaxy Z Flip 5:
 - Optimized layout for both unfolded and folded screens
