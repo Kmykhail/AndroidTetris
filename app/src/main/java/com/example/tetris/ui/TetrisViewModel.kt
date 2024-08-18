@@ -1,5 +1,6 @@
 package com.example.tetris.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tetris.model.GameBoard
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.example.tetris.model.getRandomTetromino
 
+private const val TAG = "Lifecycle"
 const val BOARD_WIDTH = 10
 const val BOARD_HEIGHT = 20
 
@@ -22,6 +24,13 @@ class TetrisViewModel: ViewModel() {
     val isGameRunning: StateFlow<Boolean> = _isGameRunning
     val uiState: StateFlow<TetrisUiState> = _uiState
     val isGameOver: StateFlow<Boolean> = _isGameOver
+
+    fun pauseGame() {
+        if (_isGameRunning.value) {
+            _isGameRunning.value = false
+            Log.d(TAG, "Game paused")
+        }
+    }
 
     init {
         startGameLoop()

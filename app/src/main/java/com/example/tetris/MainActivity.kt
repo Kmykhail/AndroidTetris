@@ -3,6 +3,7 @@ package com.example.tetris
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -18,10 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.window.layout.WindowMetricsCalculator
 import com.example.tetris.ui.TetrisGameScreen
+import com.example.tetris.ui.TetrisViewModel
 import com.example.tetris.ui.theme.TetrisTheme
 import com.example.tetris.utils.ScreenType
 
 class MainActivity : ComponentActivity() {
+    private val viewModel: TetrisViewModel by viewModels()
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,5 +62,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.pauseGame()
     }
 }
